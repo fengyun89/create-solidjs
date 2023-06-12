@@ -1,12 +1,12 @@
 import { program } from "commander";
 import inquirer from "inquirer";
-import fs from "fs";
 import chalk from "chalk";
-import pkg from "../package.json" assert { type: "json" };
+import ora from "ora";
+import fs from "fs";
+import https from "https";
+import AdmZip from "adm-zip";
 
 const res = {};
-
-program.version(pkg.version, "-v, --version", "output the current version");
 
 program.option("-n, --name <name>", "project name");
 
@@ -86,9 +86,60 @@ await inquirer
     res.case = answers.case;
   });
 
+const spinner = ora("Loading template\n").start();
 fs.mkdirSync(res.name);
 
-console.log(chalk.green("Done. Now run:\n"));
-console.log(chalk.green(`  cd ${res.name}`));
-console.log(chalk.green("  npm install"));
-console.log(chalk.green("  npm run dev\n"));
+const fileWrite = fs.createWriteStream(`${res.name}/main.zip`);
+fileWrite.on("finish", () => {
+  fileWrite.close();
+
+  const zip = new AdmZip(`./${res.name}/main.zip`);
+
+  zip.extractAllTo(`./${res.name}`, true);
+
+  fs.cpSync(`${res.name}/solid-csr-template-main`, `${res.name}`, {
+    recursive: true,
+  });
+
+  fs.rmSync(`${res.name}/main.zip`);
+  fs.rmSync(`${res.name}/solid-csr-template-main`, { recursive: true });
+  fs.rmSync(`${res.name}/pnpm-lock.yaml`);
+
+  const packageJson = JSON.parse(
+    fs.readFileSync(`${res.name}/package.json`, "utf-8")
+  );
+  packageJson.name = res.name;
+  fs.writeFileSync(
+    `${res.name}/package.json`,
+    JSON.stringify(packageJson, null, 2)
+  );
+
+  spinner.succeed();
+
+  res.npm = "npm";
+  if (process.env.npm_execpath) {
+    if (process.env.npm_execpath.indexOf("pnpm") !== -1) {
+      res.npm = "pnpm";
+    } else if (process.env.npm_execpath.indexOf("yarn") !== -1) {
+      res.npm = "yarn";
+    }
+  }
+
+  console.log(chalk.green("\n"));
+  console.log(chalk.green("Done. Now run:\n"));
+  console.log(chalk.green(`  cd ${res.name}`));
+  console.log(chalk.green(`  ${res.npm} install`));
+  console.log(chalk.green(`  ${res.npm} run dev\n`));
+});
+
+https.get(
+  "https://codeload.github.com/coding-freedom/solid-csr-template/zip/refs/heads/main",
+  (response) => {
+    if (response.statusCode !== 200) {
+      spinner.fail();
+      console.log(chalk.red(`Error: ${response.statusCode}`));
+      process.exit(1);
+    }
+    response.pipe(fileWrite);
+  }
+);

@@ -1,6 +1,6 @@
 {
   "name": "create-solidjs",
-  "version": "0.0.0-alpah.1",
+  "version": "0.0.0-alpah.2",
   "description": "An easy way to start a Solid project",
   "type": "module",
   "bin": {
@@ -21,8 +21,10 @@
   },
   "homepage": "https://github.com/coding-freedom/create-solidjs#readme",
   "dependencies": {
+    "adm-zip": "^0.5.10",
     "chalk": "^5.2.0",
     "commander": "^10.0.1",
-    "inquirer": "^9.2.7"
+    "inquirer": "^9.2.7",
+    "ora": "^6.3.1"
   }
 }
