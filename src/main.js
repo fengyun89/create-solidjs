@@ -86,7 +86,7 @@ await inquirer
     res.case = answers.case;
   });
 
-const spinner = ora("Loading template\n").start();
+const spinner = ora("Loading template").start();
 fs.mkdirSync(res.name);
 
 const fileWrite = fs.createWriteStream(`${res.name}/main.zip`);
@@ -116,17 +116,14 @@ fileWrite.on("finish", () => {
 
   spinner.succeed();
 
-  res.npm = "npm";
-  if (process.env.npm_execpath) {
-    if (process.env.npm_execpath.indexOf("pnpm") !== -1) {
-      res.npm = "pnpm";
-    } else if (process.env.npm_execpath.indexOf("yarn") !== -1) {
-      res.npm = "yarn";
-    }
-  }
+  const userAgent = process.env.npm_config_user_agent ?? "";
+  res.npm = /pnpm/.test(userAgent)
+    ? "pnpm"
+    : /yarn/.test(userAgent)
+    ? "yarn"
+    : "npm";
 
-  console.log(chalk.green("\n"));
-  console.log(chalk.green("Done. Now run:\n"));
+  console.log(chalk.green("\nDone. Now run:\n"));
   console.log(chalk.green(`  cd ${res.name}`));
   console.log(chalk.green(`  ${res.npm} install`));
   console.log(chalk.green(`  ${res.npm} run dev\n`));
