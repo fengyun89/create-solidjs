@@ -1,6 +1,6 @@
 {
   "name": "create-solidjs",
-  "version": "0.0.0-alpah.4",
+  "version": "0.0.0-alpah.5",
   "description": "An easy way to start a Solid project",
   "type": "module",
   "bin": {

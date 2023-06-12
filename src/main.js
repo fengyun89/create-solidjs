@@ -7,6 +7,7 @@ import https from "https";
 import AdmZip from "adm-zip";
 
 import cases from "./cases.js";
+import getCommand from "./getCommand.js";
 
 const res = {};
 
@@ -119,7 +120,7 @@ fileWrite.on("finish", () => {
   spinner.succeed();
 
   const userAgent = process.env.npm_config_user_agent ?? "";
-  res.npm = /pnpm/.test(userAgent)
+  res.packageManager = /pnpm/.test(userAgent)
     ? "pnpm"
     : /yarn/.test(userAgent)
     ? "yarn"
@@ -127,8 +128,8 @@ fileWrite.on("finish", () => {
 
   console.log(chalk.green("\nDone. Now run:\n"));
   console.log(chalk.green(`  cd ${res.name}`));
-  console.log(chalk.green(`  ${res.npm} install`));
-  console.log(chalk.green(`  ${res.npm} run dev\n`));
+  console.log(chalk.green(`  ${getCommand(res.packageManager, "install")}`));
+  console.log(chalk.green(`  ${getCommand(res.packageManager, "dev")}\n`));
 });
 
 https.get(
