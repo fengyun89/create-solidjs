@@ -6,6 +6,8 @@ import fs from "fs";
 import https from "https";
 import AdmZip from "adm-zip";
 
+import cases from "./cases.js";
+
 const res = {};
 
 program.option("-n, --name <name>", "project name");
@@ -74,16 +76,16 @@ await inquirer
       name: "case",
       default: "csr",
       message: "Select your use case",
-      choices: [
-        { name: "Client-side rendering (CSR)", value: "csr" },
-        { name: "Server-side rendering (SSR)", value: "ssr", disabled: true },
-        { name: "Streaming SSR", value: "sssr", disabled: true },
-        { name: "Static site generation (SSG)", value: "ssg", disabled: true },
-      ],
+      choices: cases.map((c) => ({
+        name: c.name,
+        value: c.value,
+        disabled: c.disabled,
+      })),
     },
   ])
   .then((answers) => {
     res.case = answers.case;
+    res.repo = cases.find((c) => c.value === res.case).repo;
   });
 
 const spinner = ora("Loading template").start();
@@ -97,12 +99,12 @@ fileWrite.on("finish", () => {
 
   zip.extractAllTo(`./${res.name}`, true);
 
-  fs.cpSync(`${res.name}/solid-csr-template-main`, `${res.name}`, {
+  fs.cpSync(`${res.name}/${res.repo}-main`, `${res.name}`, {
     recursive: true,
   });
 
   fs.rmSync(`${res.name}/main.zip`);
-  fs.rmSync(`${res.name}/solid-csr-template-main`, { recursive: true });
+  fs.rmSync(`${res.name}/${res.repo}-main`, { recursive: true });
   fs.rmSync(`${res.name}/pnpm-lock.yaml`);
 
   const packageJson = JSON.parse(
@@ -130,7 +132,7 @@ fileWrite.on("finish", () => {
 });
 
 https.get(
-  "https://codeload.github.com/coding-freedom/solid-csr-template/zip/refs/heads/main",
+  `https://codeload.github.com/coding-freedom/${res.repo}/zip/refs/heads/main`,
   (response) => {
     if (response.statusCode !== 200) {
       spinner.fail();
