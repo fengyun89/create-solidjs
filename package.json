@@ -1,0 +1,28 @@
+{
+  "name": "create-solidjs",
+  "version": "0.0.0-alpah.1",
+  "description": "An easy way to start a Solid project",
+  "type": "module",
+  "bin": {
+    "create-solidjs": "./bin/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coding-freedom/create-solidjs.git"
+  },
+  "keywords": [
+    "solid",
+    "solidjs"
+  ],
+  "author": "coding-freedom",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/coding-freedom/create-solidjs/issues"
+  },
+  "homepage": "https://github.com/coding-freedom/create-solidjs#readme",
+  "dependencies": {
+    "chalk": "^5.2.0",
+    "commander": "^10.0.1",
+    "inquirer": "^9.2.7"
+  }
+}
